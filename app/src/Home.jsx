@@ -6,7 +6,6 @@ import "./styles/home.scss";
 import goldenBoots from "./assets/golden_boots.png";
 import stadium from "./assets/stadium.png";
 
-// Drawer icons (en el orden del Figma)
 import drawerIcon from "./assets/drawer_icon.svg";
 import profileIcon from "./assets/iconamoon_profile-light.svg";
 import cartIcon from "./assets/lineicons_cart-1.svg";
@@ -17,8 +16,28 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const [q, setQ] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+
+// atajo de teclado Ctrl+K
+useEffect(() => {
+  const handleShortcut = (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      setSearchOpen(true); // abre la barra
+    }
+    if (e.key === "Escape") {
+      setSearchOpen(false); // cierra con Escape
+    }
+  };
+
+  window.addEventListener("keydown", handleShortcut);
+  return () => window.removeEventListener("keydown", handleShortcut);
+}, []);
+
 
   useEffect(() => {
+
+  
     (async () => {
       setLoading(true);
       const prods = await api.getProducts();
@@ -44,43 +63,66 @@ export default function Home() {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const openSearch = () => {
-    const el = document.getElementById("novidades");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const toggleSearch = () => {
+    setSearchOpen((prev) => !prev);
   };
 
   return (
     <div className="home">
-      {/* ===== HERO 1920x1080 ===== */}
+      {/* ===== SEARCH HEADER ===== */}
+      <div className={`searchHeader ${searchOpen ? "isOpen" : ""}`}>
+        <div className="searchHeader__bar">
+          <img src={searchIcon} alt="" className="searchHeader__icon" />
+          <input
+            className="searchHeader__input"
+            type="text"
+            placeholder="Buscar..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            autoFocus={searchOpen}
+          />
+        </div>
+
+        <div className="searchHeader__section">
+          <div className="searchHeader__title">Mais buscados</div>
+        </div>
+
+        <div className="searchHeader__tags">
+          <span className="tag">Chuteira Adulto</span>
+          <span className="tag">Chuteira Infantil</span>
+          <span className="tag">Meião GMA</span>
+          <span className="tag">Luva Goleiro</span>
+          <span className="tag">Calça Térmica GMA</span>
+          <span className="tag">Feminino</span>
+          <span className="tag">Masculino</span>
+        </div>
+      </div>
+
+      {/* ===== HERO ===== */}
       <section className="hero">
         <div className="hero__wrap">
-          {/* "po" arriba izquierda */}
           <div className="hero__brand">po</div>
 
-          {/* copy */}
           <div className="hero__copy">
             <h1 className="hero__title">
               GMA D’or <br />
               Chuteira Campo
             </h1>
-
             <p className="hero__desc">
               Poucos pares. Acabamento dourado exclusivo. Performance de elite. Uma
               chuteira feita para brilhar e marcar presença dentro e fora dos gramados.
             </p>
           </div>
 
-          {/* CTA */}
           <button className="hero__cta" type="button" onClick={goToNews}>
             Ler mais
           </button>
 
-          {/* image */}
           <div className="hero__media">
             <img src={goldenBoots} alt="GMA D’or Chuteira Campo" />
           </div>
 
-          {/* ===== Drawer vertical (sin header) ===== */}
+          {/* ===== Drawer vertical ===== */}
           <nav className="drawer" aria-label="Ações rápidas">
             <button className="drawer__btn" type="button" aria-label="Menu">
               <img src={drawerIcon} alt="" />
@@ -94,11 +136,12 @@ export default function Home() {
               <img src={cartIcon} alt="" />
             </Link>
 
+            {/* LUPA: toggle header */}
             <button
               className="drawer__btn"
               type="button"
               aria-label="Buscar"
-              onClick={openSearch}
+              onClick={toggleSearch}
             >
               <img src={searchIcon} alt="" />
             </button>
@@ -127,7 +170,7 @@ export default function Home() {
         <p className="newsHead__sub">Confira já!</p>
       </section>
 
-      {/* ===== GRID 4x2 ===== */}
+      {/* ===== GRID ===== */}
       <section className="grid">
         {loading ? (
           <div className="grid__loading">Carregando produtos...</div>
@@ -144,7 +187,6 @@ export default function Home() {
                 </Link>
               ))}
             </div>
-
             <div className="grid__row">
               {gridItems.slice(4, 8).map((p) => (
                 <Link key={p.id} to={`/produto/${p.id}`} className="card">

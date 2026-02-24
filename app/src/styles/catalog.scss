@@ -1,0 +1,83 @@
+.catalog {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 40px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.catalog__title {
+  margin: 0 0 40px;
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 48px;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+}
+
+.catalog__loading {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 20px;
+  opacity: 0.75;
+}
+
+.catalog__grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+}
+
+.catalog__card {
+  width: 260px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  transition: transform 0.2s ease;
+}
+
+.catalog__card:hover {
+  transform: translateY(-4px);
+}
+
+.catalog__img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.catalog__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.catalog__name {
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.catalog__price {
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}

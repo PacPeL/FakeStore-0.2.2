@@ -407,3 +407,90 @@ background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%);
     gap: 40px;
   }
 }
+
+
+/* ===== SEARCH HEADER ===== */
+.searchHeader {
+  position: fixed;
+  top: -250px; /* oculto arriba */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 20px 30px;
+  z-index: 1000;
+  transition: top 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra horizontalmente */
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.searchHeader.isOpen {
+  top: 0; /* baja suavemente */
+}
+
+.searchHeader__bar {
+  width: 100%;
+  max-width: 600px;
+  height: 44px;
+  background: #e2e2e2;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 15px;
+}
+
+.searchHeader__icon {
+  width: 17px;
+  height: 17px;
+}
+
+.searchHeader__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: "Montserrat", system-ui;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+
+  &::placeholder {
+    color: #818181;
+  }
+}
+
+.searchHeader__section {
+  font-family: "Montserrat", system-ui;
+  font-size: 16px;
+  font-weight: 600;
+  color: #818181;
+  text-align: center; /* centra el título */
+  width: 100%;
+}
+
+.searchHeader__tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* centra las etiquetas */
+  gap: 10px;
+  max-width: 800px;
+}
+
+.tag {
+  background: #e2e2e2;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 15px;
+  font-family: "Montserrat", system-ui;
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.tag:hover {
+  background: #d0d0d0;
+}

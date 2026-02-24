@@ -58,7 +58,16 @@ export default function Cart() {
         <div className="cart__total">
           Total: <strong>R$ {cartTotal.toFixed(2)}</strong>
         </div>
-        <button className="cart__checkout">Finalizar compra</button>
+<button
+  className="cart__checkout"
+  type="button"
+  onClick={() => {
+    alert("Compra realizada com sucesso!");
+    clearCart();
+  }}
+>
+  Finalizar compra
+</button>
       </div>
     </div>
   );
