@@ -499,3 +499,23 @@
     padding: 70px 18px 80px;
   }
 }
+
+/* Botón carrito al lado de Comprar */
+.pBuyCart {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.pBuyCart img {
+  width: 33px;
+  height: 33px;
+  object-fit: contain;
+  display: block;
+  transform: translateZ(0);
+}

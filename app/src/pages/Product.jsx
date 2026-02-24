@@ -156,16 +156,33 @@ export default function Product() {
               ou <strong>{INSTALLMENTS}x</strong> de{" "}
               <strong>{formatBRL(installment)}</strong> sem juros
             </div>
+<div className="pBuyRow">
+  {/* Botón Comprar → añade al carrito y navega al carrito */}
+  <button
+    className="pBuy"
+    type="button"
+    onClick={() => {
+      addToCart({ ...p, size });
+      nav("/cart"); // lleva directo al carrito
+    }}
+  >
+    Comprar
+  </button>
 
-            <div className="pBuyRow">
-              <button className="pBuy" type="button" onClick={() => addToCart({ ...p, size })}>
-                Comprar
-              </button>
+  {/* Icono carrito → añade al carrito y muestra alerta */}
+  <button
+    className="pBuyCart"
+    type="button"
+    onClick={() => {
+      addToCart({ ...p, size });
+      alert("Produto adicionado ao carrinho!");
+    }}
+    aria-label="Adicionar ao carrinho"
+  >
+    <img src={cartIcon} alt="" />
+  </button>
+</div>
 
-              <Link to="/cart" className="pBuyCart" aria-label="Ir para o carrinho">
-                <img src={cartIcon} alt="" />
-              </Link>
-            </div>
           </div>
 
           {/* product image (igual “centrado” que home) */}
