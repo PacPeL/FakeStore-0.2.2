@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { api } from "./services/api";
 import "./styles/home.scss";
@@ -17,6 +17,9 @@ export default function Home() {
 
   const [q, setQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // referencia al input
+  const searchInputRef = useRef(null);
 
   // atajo de teclado Ctrl+K y Escape
   useEffect(() => {
@@ -43,6 +46,13 @@ export default function Home() {
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
+  }, [searchOpen]);
+
+  // enfocar input cuando se abre el header
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
   }, [searchOpen]);
 
   useEffect(() => {
@@ -82,12 +92,12 @@ export default function Home() {
         <div className="searchHeader__bar">
           <img src={searchIcon} alt="" className="searchHeader__icon" />
           <input
+            ref={searchInputRef}
             className="searchHeader__input"
             type="text"
             placeholder="Buscar..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            autoFocus={searchOpen}
           />
         </div>
 
