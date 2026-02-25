@@ -243,7 +243,7 @@ export default function Catalog() {
           {/* texto centrado como Figma */}
           <div className="catalogHero__results">
             <div className="catalogHero__hint">
-              Você buscou por “{q?.trim() ? q.trim() : "—"}”
+              Você buscou por “{q?.trim() ? q.trim() : "******"}”
             </div>
             <div className="catalogHero__count">{sorted.length} Resultados</div>
           </div>
