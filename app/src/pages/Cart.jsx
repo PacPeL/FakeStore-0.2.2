@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "../store.jsx";
 import "../styles/cart.scss";
+import "../styles/auth.scss";
+
 
 import drawerIcon from "../assets/drawer_icon.svg";
 import profileIcon from "../assets/iconamoon_profile-light.svg";

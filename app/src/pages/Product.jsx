@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api.js";
 import { useStore } from "../store.jsx";
 import "../styles/product.scss";
+import "../styles/auth.scss";
+
 
 // Drawer icons (mismos assets que usas en Home)
 import drawerIcon from "../assets/drawer_icon.svg";

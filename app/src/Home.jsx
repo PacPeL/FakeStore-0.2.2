@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "./services/api";
 import "./styles/home.scss";
+import "./styles/auth.scss";
 
 import goldenBoots from "./assets/golden_boots.png";
 import stadium from "./assets/stadium.png";
@@ -43,7 +44,7 @@ export default function Home() {
 
 
 
-  
+
   // atajo de teclado Ctrl+K y Escape
   useEffect(() => {
     const handleShortcut = (e) => {

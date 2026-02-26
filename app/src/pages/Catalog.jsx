@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { api } from "../services/api.js";
 import "../styles/catalog.scss";
+import "../styles/auth.scss";
+
 
 // Drawer icons
 import drawerIcon from "../assets/drawer_icon.svg";
