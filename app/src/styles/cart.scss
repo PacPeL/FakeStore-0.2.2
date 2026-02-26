@@ -14,12 +14,17 @@
   max-width: 1920px;
 
   /* antes: height: 1080px; */
-  min-height: 1180px; /* ⬅️ más alto para que el resumen no choque con el borde */
-  padding-bottom: 120px; /* ⬅️ aire inferior extra */
+  min-height: 1180px; /* sigue dando aire cuando hay pocos items */
+  padding-bottom: 120px; /* aire inferior extra */
 
   margin: 0 auto;
   position: relative;
-  overflow: hidden;
+
+  /* ✅ CLAVE: que el contenido largo no se corte */
+  overflow: visible; /* antes: hidden */
+
+  /* ✅ CLAVE: reserva el espacio donde “vivía” el top: 437px del layout */
+  padding-top: 437px;
 }
 
 /* po */
@@ -100,11 +105,13 @@
 
 /* ===== Layout lista + resumo ===== */
 .cartLayout {
-  position: absolute;
-  left: 32px;
-  top: 437px;
+  /* ❌ antes estaba absolute y no dejaba crecer el contenedor */
+  position: relative;
 
+  /* ✅ ahora vive en el flujo normal y puede empujar el alto de la página */
   width: calc(100% - 64px);
+  margin: 0 32px;
+
   display: flex;
   gap: 100px;
   align-items: flex-start;
@@ -347,6 +354,7 @@
 
 /* ===== EMPTY ===== */
 .cartEmpty {
+  /* lo dejo como estaba para no romper tu layout vacío */
   position: absolute;
   left: 50%;
   top: 460px;
@@ -528,6 +536,9 @@
   .cartHero__wrap {
     min-height: auto;
     padding: 32px 18px 60px;
+
+    /* en móvil ya no queremos ese padding-top fijo */
+    padding-top: 0;
   }
 
   .cartHero__brand,
@@ -552,6 +563,10 @@
     width: 100%;
     gap: 24px;
     padding-bottom: 40px;
+
+    /* como ahora en desktop usamos margin lateral,
+       en móvil lo reseteamos */
+    margin: 0;
   }
 
   .cartList { width: 100%; }
