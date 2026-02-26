@@ -195,7 +195,14 @@ export default function Cart() {
                           <div className="cartItem__qty">
                             <button
                               className="cartItem__qtyBtn"
-                              onClick={() => setQty(x.id, Math.max(1, x.qty - 1))}
+                              onClick={() => {
+                                const newQty = Math.max(0, (x.qty ?? 0) - 1);
+                                if (newQty <= 0) {
+                                  removeFromCart(x.id);
+                                } else {
+                                  setQty(x.id, newQty);
+                                }
+                              }}
                               aria-label="Diminuir quantidade"
                             >
                               -
@@ -203,7 +210,7 @@ export default function Cart() {
                             <span className="cartItem__qtyVal">{x.qty}</span>
                             <button
                               className="cartItem__qtyBtn"
-                              onClick={() => setQty(x.id, x.qty + 1)}
+                              onClick={() => setQty(x.id, (x.qty ?? 0) + 1)}
                               aria-label="Aumentar quantidade"
                             >
                               +
@@ -211,9 +218,7 @@ export default function Cart() {
                           </div>
                         </div>
 
-                        <button className="cartItem__remove" onClick={() => removeFromCart(x.id)}>
-                          Remover
-                        </button>
+                        {/* Remover button eliminado según solicitud */}
                       </div>
 
                       <div className="cartItem__price">R$ {(x.price * x.qty).toFixed(2)}</div>
