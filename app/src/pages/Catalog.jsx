@@ -4,14 +4,13 @@ import { api } from "../services/api.js";
 import "../styles/catalog.scss";
 import "../styles/auth.scss";
 
-
 // Drawer icons
 import drawerIcon from "../assets/drawer_icon.svg";
 import profileIcon from "../assets/iconamoon_profile-light.svg";
 import cartIcon from "../assets/lineicons_cart-1.svg";
 import searchIcon from "../assets/icon.svg";
 
-// NEW: flecha de assets para filtros/orden
+// flecha para filtros/orden
 import vectorArrow from "../assets/Vector.svg";
 
 export default function Catalog() {
@@ -25,7 +24,16 @@ export default function Catalog() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ===== FILTER / SORT (UI igual al Figma; funcional básico) =====
+  // ✅ AUTH modal (igual Home)
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState("login"); // "login" | "register"
+  const authRef = useRef(null);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // ===== FILTER / SORT =====
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todos");
@@ -67,26 +75,31 @@ export default function Catalog() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen(true);
+        setAuthOpen(false);
       }
       if (e.key === "Escape") {
         setSearchOpen(false);
         setFilterOpen(false);
         setSortOpen(false);
+        setAuthOpen(false);
       }
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  // click outside: search header, drawer, dropdowns
+  // click outside: search header, drawer, dropdowns, modal
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (searchOpen) {
-        if (e.target.closest(".searchHeader")) return;
-        if (e.target.closest(".drawer")) return;
-        setSearchOpen(false);
-      }
+      // si click dentro del header/drawer/modal, no cerrar
+      if (e.target.closest(".searchHeader")) return;
+      if (e.target.closest(".drawer")) return;
+      if (e.target.closest(".authModal")) return;
 
+      if (searchOpen) setSearchOpen(false);
+      if (authOpen) setAuthOpen(false);
+
+      // dropdowns
       if (filterOpen && filterRef.current && !filterRef.current.contains(e.target)) {
         setFilterOpen(false);
       }
@@ -95,9 +108,11 @@ export default function Catalog() {
       }
     };
 
+    if (!searchOpen && !filterOpen && !sortOpen && !authOpen) return;
+
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [searchOpen, filterOpen, sortOpen]);
+  }, [searchOpen, filterOpen, sortOpen, authOpen]);
 
   // enfocar input cuando se abre searchHeader
   useEffect(() => {
@@ -109,7 +124,19 @@ export default function Catalog() {
     }
   }, [searchOpen]);
 
-  const toggleSearch = () => setSearchOpen((prev) => !prev);
+  // enfocar email cuando abre modal
+  useEffect(() => {
+    if (!authOpen) return;
+    setTimeout(() => {
+      const el = authRef.current?.querySelector("input");
+      if (el) el.focus();
+    }, 220);
+  }, [authOpen, authTab]);
+
+  const toggleSearch = () => {
+    setSearchOpen((prev) => !prev);
+    setAuthOpen(false);
+  };
 
   // navegar al catálogo con query param
   const goToCatalog = (query) => {
@@ -125,6 +152,33 @@ export default function Catalog() {
   const handleTagClick = (tag) => {
     setQ(tag);
     setTimeout(() => goToCatalog(tag), 0);
+  };
+
+  // ✅ open auth modal
+  const openAuth = (tab = "login") => {
+    setAuthTab(tab);
+    setAuthOpen(true);
+    setSearchOpen(false);
+    setFilterOpen(false);
+    setSortOpen(false);
+  };
+
+  // placeholder submit
+  const handleSubmitAuth = (e) => {
+    e.preventDefault();
+
+    // if (authTab === "register" && password !== confirmPassword) {
+    //   // TODO mostrar toast/erro
+    //   return;
+    // }
+
+    // if (authTab === "login") {
+    //   // TODO Firebase signInWithEmailAndPassword(auth, email, password)
+    // } else {
+    //   // TODO Firebase createUserWithEmailAndPassword(auth, email, password)
+    // }
+
+    alert(authTab === "login" ? `Login: ${email}` : `Cadastrar: ${email}`);
   };
 
   // categorías a partir del dataset
@@ -172,11 +226,9 @@ export default function Catalog() {
     return arr;
   }, [filtered, sortBy]);
 
-  // para “Figma feeling”: primera fila va dentro del bloque 1080
   const firstRow = sorted.slice(0, 4);
   const rest = sorted.slice(4);
 
-  // filas de 4
   const restRows = useMemo(() => {
     const out = [];
     for (let i = 0; i < rest.length; i += 4) out.push(rest.slice(i, i + 4));
@@ -218,18 +270,111 @@ export default function Catalog() {
         </div>
       </div>
 
+      {/* ✅ AUTH MODAL (Figma) */}
+      <div className={`authOverlay ${authOpen ? "isOpen" : ""}`} aria-hidden={!authOpen}>
+        <div
+          className={`authModal ${authOpen ? "isOpen" : ""}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Login / Cadastrar"
+          ref={authRef}
+        >
+          <div className="authTabs">
+            <button
+              type="button"
+              className={`authTab ${authTab === "login" ? "isActive" : ""}`}
+              onClick={() => setAuthTab("login")}
+            >
+              Login
+            </button>
+
+            <button
+              type="button"
+              className={`authTab ${authTab === "register" ? "isActive" : ""}`}
+              onClick={() => setAuthTab("register")}
+            >
+              Cadastrar
+            </button>
+          </div>
+
+          <div className="authUnderlineWrap">
+            <div className={`authUnderline ${authTab === "register" ? "isRegister" : "isLogin"}`} />
+          </div>
+
+          <form
+            className={`authForm ${authTab === "register" ? "isRegister" : ""}`}
+            onSubmit={handleSubmitAuth}
+          >
+            <div className="authForm__inner">
+              <div className="authGroup">
+                <div className="authLabel">E-mail</div>
+                <div className="authInputBox">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Digitar..."
+                    aria-label="E-mail"
+                  />
+                </div>
+              </div>
+
+              <div className="authGroup">
+                <div className="authLabel">Senha</div>
+                <div className="authInputBox">
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="**********"
+                    aria-label="Senha"
+                  />
+                </div>
+              </div>
+
+              {authTab === "register" && (
+                <div className="authGroup">
+                  <div className="authLabel">Confirmar Senha</div>
+                  <div className="authInputBox">
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="**********"
+                      aria-label="Confirmar Senha"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="authFooter">
+              <button className="authSubmit" type="submit">
+                {authTab === "login" ? "Entrar" : "Criar Conta"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       {/* ===== TOP (1080) ===== */}
       <section className="catalogHero">
         <div className="catalogHero__wrap">
           <div className="catalogHero__brand">po</div>
 
-          {/* drawer igual al home */}
+          {/* drawer */}
           <nav className="drawer" aria-label="Ações rápidas">
             <button className="drawer__btn" type="button" aria-label="Menu">
               <img src={drawerIcon} alt="" />
             </button>
 
-            <button className="drawer__btn" type="button" aria-label="Perfil">
+            {/* ✅ PERFIL abre modal */}
+            <button
+              className="drawer__btn"
+              type="button"
+              aria-label="Perfil"
+              onClick={() => openAuth("login")}
+            >
               <img src={profileIcon} alt="" />
             </button>
 
@@ -242,7 +387,6 @@ export default function Catalog() {
             </button>
           </nav>
 
-          {/* texto centrado como Figma */}
           <div className="catalogHero__results">
             <div className="catalogHero__hint">
               Você buscou por “{q?.trim() ? q.trim() : "******"}”
@@ -250,7 +394,6 @@ export default function Catalog() {
             <div className="catalogHero__count">{sorted.length} Resultados</div>
           </div>
 
-          {/* filtros/orden como Figma */}
           <div className="catalogControls">
             <div className="catalogControls__group" ref={filterRef}>
               <button
@@ -259,12 +402,11 @@ export default function Catalog() {
                 onClick={() => {
                   setFilterOpen((v) => !v);
                   setSortOpen(false);
+                  setAuthOpen(false);
                 }}
                 aria-label="Filtrar por"
               >
                 <span>Filtrar por</span>
-
-                {/* NEW arrow image */}
                 <img
                   src={vectorArrow}
                   alt=""
@@ -299,12 +441,11 @@ export default function Catalog() {
                 onClick={() => {
                   setSortOpen((v) => !v);
                   setFilterOpen(false);
+                  setAuthOpen(false);
                 }}
                 aria-label="Ordenar por"
               >
                 <span>Ordenar por</span>
-
-                {/* NEW arrow image */}
                 <img
                   src={vectorArrow}
                   alt=""
@@ -333,7 +474,6 @@ export default function Catalog() {
             </div>
           </div>
 
-          {/* primera fila dentro del bloque 1080 */}
           <div className="catalogHero__row">
             {firstRow.map((p) => (
               <Link key={p.id} to={`/produto/${p.id}`} className="card">
@@ -348,7 +488,6 @@ export default function Catalog() {
         </div>
       </section>
 
-      {/* ===== RESTO DEL CATÁLOGO ===== */}
       <section className="catalogBody">
         {restRows.map((row, idx) => (
           <div className="catalogBody__row" key={idx}>
