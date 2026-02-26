@@ -508,3 +508,218 @@ background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%);
   outline: none;
   box-shadow: 0 0 0 3px rgba(0,0,0,0.06); /* opcional: foco sutil accesible */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================
+   AUTH POPUP (Login/Register)
+   ============================ */
+
+.authOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+
+  /* oscurece suave */
+  background: rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.authOverlay.isOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Modal: entra desde arriba y queda centrado */
+.authModal {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 15px;
+  background: #fff;
+
+  position: fixed;
+  left: 50%;
+  top: 0;
+
+  transform: translate(-50%, -120%);
+  opacity: 0;
+
+  transition:
+    transform 0.32s ease,
+    opacity 0.24s ease;
+
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.authModal.isOpen {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+
+/* Tabs */
+.authTabs {
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 120px;
+}
+
+.authTab {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 8px 18px;
+
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 13px;
+  font-weight: 400;
+  color: #000;
+}
+
+.authTab.isActive {
+  font-weight: 600;
+}
+
+/* Underline area */
+.authUnderlineWrap {
+  height: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.authUnderline {
+  width: 302px;
+  height: 1px;
+  background: #000;
+  border-radius: 100px;
+  transition: transform 0.25s ease;
+}
+
+/* Body */
+.authBody {
+  padding: 10px;
+}
+
+.authField {
+  height: 299px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.authLabel {
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 13px;
+  font-weight: 400;
+  color: #000;
+  min-width: 52px;
+}
+
+/* Input box (Figma) */
+.authInputBox {
+  width: 420px;
+  background: #e2e2e2;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.authInputBox input {
+  width: 100%;
+  height: 44px;
+  padding: 0 15px;
+
+  border: 0;
+  outline: none;
+  background: transparent;
+
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.authInputBox input::placeholder {
+  color: #818181;
+}
+
+/* Actions (extra, no figma, pero útil) */
+.authActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 0 10px 14px;
+}
+
+.authBtn {
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: #3d3d3d;
+  color: #fff;
+
+  font-family: "Montserrat", system-ui;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.authClose {
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: #e2e2e2;
+  color: #000;
+
+  font-family: "Montserrat", system-ui;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .authModal {
+    max-width: calc(100% - 28px);
+  }
+
+  .authTabs {
+    gap: 80px;
+  }
+
+  .authInputBox {
+    width: 100%;
+  }
+
+  .authField {
+    height: auto;
+    padding: 14px 10px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .authLabel {
+    min-width: auto;
+  }
+}
