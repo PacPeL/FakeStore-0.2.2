@@ -45,6 +45,15 @@ export default function Product() {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef(null);
 
+  // ✅ AUTH (igual Home)
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState("login"); // "login" | "register"
+  const authRef = useRef(null);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   // tags recientes (mismo set que en Home)
   const recentTags = [
     "Chuteira Adulto",
@@ -91,39 +100,43 @@ export default function Product() {
     return pixPrice / INSTALLMENTS;
   }, [pixPrice]);
 
-  // ===== SEARCH HEADER BEHAVIOR =====
-
-  // atajo de teclado Ctrl/Cmd + K y Escape
+  // ===== SHORTCUTS =====
   useEffect(() => {
     const handleShortcut = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen(true);
+        setAuthOpen(false);
       }
       if (e.key === "Escape") {
         setSearchOpen(false);
+        setAuthOpen(false);
       }
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  // cerrar al clickar fuera (pero no dentro del header ni del drawer)
+  // cerrar al clickar fuera (pero no dentro del header, drawer o modal)
   useEffect(() => {
-    if (!searchOpen) return;
+    if (!searchOpen && !authOpen) return;
+
     const handleClickOutside = (e) => {
-      if (e.target.closest(".searchHeader")) return; // dentro del header
-      if (e.target.closest(".drawer")) return; // dentro del drawer
-      setSearchOpen(false);
+      if (e.target.closest(".searchHeader")) return;
+      if (e.target.closest(".drawer")) return;
+      if (e.target.closest(".authModal")) return;
+
+      if (authOpen) setAuthOpen(false);
+      if (searchOpen) setSearchOpen(false);
     };
+
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, [searchOpen]);
+  }, [searchOpen, authOpen]);
 
   // enfocar input cuando se abre el header
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
-      // pequeño delay para asegurar que la animación terminó y el input está visible
       setTimeout(() => {
         searchInputRef.current.focus();
         if (searchInputRef.current.select) searchInputRef.current.select();
@@ -131,34 +144,63 @@ export default function Product() {
     }
   }, [searchOpen]);
 
+  // enfocar email cuando abre modal
+  useEffect(() => {
+    if (!authOpen) return;
+    setTimeout(() => {
+      const el = authRef.current?.querySelector("input");
+      if (el) el.focus();
+    }, 220);
+  }, [authOpen, authTab]);
+
   const toggleSearch = () => {
     setSearchOpen((prev) => !prev);
+    setAuthOpen(false);
   };
 
-  // navegar al catálogo con el query (cierra header)
   const goToCatalog = (query) => {
     const qParam = query ?? "";
     nav(`/catalog?q=${encodeURIComponent(qParam)}`);
     setSearchOpen(false);
   };
 
-  // manejar Enter en el input
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      goToCatalog(q);
-    }
+    if (e.key === "Enter") goToCatalog(q);
   };
 
-  // manejar click en tag: rellena input y navega automáticamente
   const handleTagClick = (tag) => {
     setQ(tag);
-    // pequeña espera para que el estado se actualice (no estrictamente necesario)
     setTimeout(() => goToCatalog(tag), 0);
   };
 
-  // Mantener compatibilidad: el botón de la lupa en el drawer abre el header
   const openSearch = () => {
     setSearchOpen(true);
+    setAuthOpen(false);
+  };
+
+  // ✅ open auth modal from drawer
+  const openAuth = (tab = "login") => {
+    setAuthTab(tab);
+    setAuthOpen(true);
+    setSearchOpen(false);
+  };
+
+  // placeholder submit
+  const handleSubmitAuth = (e) => {
+    e.preventDefault();
+
+    // if (authTab === "register" && password !== confirmPassword) {
+    //   // TODO mostrar toast/erro
+    //   return;
+    // }
+
+    // if (authTab === "login") {
+    //   // TODO Firebase signInWithEmailAndPassword(auth, email, password)
+    // } else {
+    //   // TODO Firebase createUserWithEmailAndPassword(auth, email, password)
+    // }
+
+    alert(authTab === "login" ? `Login: ${email}` : `Cadastrar: ${email}`);
   };
 
   if (loading) return <div className="product">Carregando...</div>;
@@ -188,43 +230,120 @@ export default function Product() {
 
         <div className="searchHeader__tags">
           {recentTags.map((t) => (
-            <button
-              key={t}
-              type="button"
-              className="tag"
-              onClick={() => handleTagClick(t)}
-            >
+            <button key={t} type="button" className="tag" onClick={() => handleTagClick(t)}>
               {t}
             </button>
           ))}
         </div>
       </div>
 
+      {/* ✅ AUTH MODAL (Figma) */}
+      <div className={`authOverlay ${authOpen ? "isOpen" : ""}`} aria-hidden={!authOpen}>
+        <div
+          className={`authModal ${authOpen ? "isOpen" : ""}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Login / Cadastrar"
+          ref={authRef}
+        >
+          {/* tabs */}
+          <div className="authTabs">
+            <button
+              type="button"
+              className={`authTab ${authTab === "login" ? "isActive" : ""}`}
+              onClick={() => setAuthTab("login")}
+            >
+              Login
+            </button>
+
+            <button
+              type="button"
+              className={`authTab ${authTab === "register" ? "isActive" : ""}`}
+              onClick={() => setAuthTab("register")}
+            >
+              Cadastrar
+            </button>
+          </div>
+
+          {/* underline gradient */}
+          <div className="authUnderlineWrap">
+            <div className={`authUnderline ${authTab === "register" ? "isRegister" : "isLogin"}`} />
+          </div>
+
+          {/* form */}
+          <form
+            className={`authForm ${authTab === "register" ? "isRegister" : ""}`}
+            onSubmit={handleSubmitAuth}
+          >
+            <div className="authForm__inner">
+              {/* Email */}
+              <div className="authGroup">
+                <div className="authLabel">E-mail</div>
+                <div className="authInputBox">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Digitar..."
+                    aria-label="E-mail"
+                  />
+                </div>
+              </div>
+
+              {/* Senha */}
+              <div className="authGroup">
+                <div className="authLabel">Senha</div>
+                <div className="authInputBox">
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="**********"
+                    aria-label="Senha"
+                  />
+                </div>
+              </div>
+
+              {/* Confirmar Senha */}
+              {authTab === "register" && (
+                <div className="authGroup">
+                  <div className="authLabel">Confirmar Senha</div>
+                  <div className="authInputBox">
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="**********"
+                      aria-label="Confirmar Senha"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="authFooter">
+              <button className="authSubmit" type="submit">
+                {authTab === "login" ? "Entrar" : "Criar Conta"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       {/* ===== HERO 1920x1080 ===== */}
       <section className="pHero">
         <div className="pHero__wrap">
-          {/* top-left (asteriscos del figma) */}
           <div className="pHero__brand">****************</div>
 
-          {/* title */}
           <h1 className="pTitle">{p.title}</h1>
 
-          {/* rating row */}
           <div className="pRating">
-            <div
-              className="pRating__stars"
-              aria-label={`Avaliação média ${ratingAvg.toFixed(1)} de 5`}
-            >
+            <div className="pRating__stars" aria-label={`Avaliação média ${ratingAvg.toFixed(1)} de 5`}>
               {Array.from({ length: 5 }).map((_, i) => {
                 const filled = ratingAvg >= i + 1;
                 const half = !filled && ratingAvg > i && ratingAvg < i + 1;
                 return (
-                  <span
-                    key={i}
-                    className={`pStar ${filled ? "isFilled" : ""} ${
-                      half ? "isHalf" : ""
-                    }`}
-                  >
+                  <span key={i} className={`pStar ${filled ? "isFilled" : ""} ${half ? "isHalf" : ""}`}>
                     ★
                   </span>
                 );
@@ -236,7 +355,6 @@ export default function Product() {
             </div>
           </div>
 
-          {/* sizes */}
           <div className="pSizes">
             <div className="pSizes__label">Tamanho:</div>
 
@@ -255,7 +373,6 @@ export default function Product() {
             </div>
           </div>
 
-          {/* pricing block */}
           <div className="pPrice">
             <div className="pPrice__from">
               <span className="pPrice__fromLabel">de</span>{" "}
@@ -263,38 +380,29 @@ export default function Product() {
               <span className="pPrice__fromLabel">por apenas</span>
             </div>
 
-            {/* ✅ ESTE ES EL BLOQUE QUE AJUSTAMOS PARA NO ROMPER */}
-            <div
-              className="pPrice__pix"
-              aria-label={`Preço no PIX ${formatBRL(pixPrice)}`}
-            >
+            <div className="pPrice__pix" aria-label={`Preço no PIX ${formatBRL(pixPrice)}`}>
               <span className="pPrice__pixRS">R$</span>
-              <span className="pPrice__pixValue">
-                {pixPrice.toFixed(2).replace(".", ",")}
-              </span>
+              <span className="pPrice__pixValue">{pixPrice.toFixed(2).replace(".", ",")}</span>
               <span className="pPrice__pixLabel">no</span>
               <span className="pPrice__pixMethod">PIX</span>
             </div>
 
             <div className="pPrice__inst">
-              ou <strong>{INSTALLMENTS}x</strong> de{" "}
-              <strong>{formatBRL(installment)}</strong> sem juros
+              ou <strong>{INSTALLMENTS}x</strong> de <strong>{formatBRL(installment)}</strong> sem juros
             </div>
 
             <div className="pBuyRow">
-              {/* Botón Comprar → añade al carrito y navega al carrito */}
               <button
                 className="pBuy"
                 type="button"
                 onClick={() => {
                   addToCart({ ...p, size });
-                  nav("/cart"); // lleva directo al carrito
+                  nav("/cart");
                 }}
               >
                 Comprar
               </button>
 
-              {/* Icono carrito → añade al carrito y muestra alerta */}
               <button
                 className="pBuyCart"
                 type="button"
@@ -309,7 +417,6 @@ export default function Product() {
             </div>
           </div>
 
-          {/* product image (igual “centrado” que home) */}
           <div className="pHero__media">
             <img src={p.image} alt={p.title} />
           </div>
@@ -320,7 +427,13 @@ export default function Product() {
               <img src={drawerIcon} alt="" />
             </button>
 
-            <button className="drawer__btn" type="button" aria-label="Perfil">
+            {/* ✅ PERFIL abre modal */}
+            <button
+              className="drawer__btn"
+              type="button"
+              aria-label="Perfil"
+              onClick={() => openAuth("login")}
+            >
               <img src={profileIcon} alt="" />
             </button>
 
@@ -328,17 +441,11 @@ export default function Product() {
               <img src={cartIcon} alt="" />
             </Link>
 
-            <button
-              className="drawer__btn"
-              type="button"
-              aria-label="Buscar"
-              onClick={openSearch}
-            >
+            <button className="drawer__btn" type="button" aria-label="Buscar" onClick={openSearch}>
               <img src={searchIcon} alt="" />
             </button>
           </nav>
 
-          {/* promo underline */}
           <div className="pPromo">
             <span className="pPromo__strong">Registre-se</span> e ganhe{" "}
             <span className="pPromo__strong">10%</span> de desconto usando o cupom{" "}
@@ -348,7 +455,6 @@ export default function Product() {
         </div>
       </section>
 
-      {/* ===== CONTENT ===== */}
       <section className="pContent">
         <div className="pContent__inner">
           <div className="pDesc" id="descricao">
@@ -358,13 +464,10 @@ export default function Product() {
         </div>
       </section>
 
-      {/* ===== REVIEWS ===== */}
       <section className="pReviews">
         <div className="pReviews__inner">
           <div className="pReviews__title">Avaliações:</div>
-          <div className="pReviews__sub">
-            O que os clientes estão dizendo sobre o produto?
-          </div>
+          <div className="pReviews__sub">O que os clientes estão dizendo sobre o produto?</div>
 
           <div className="pReviews__empty">
             {ratingCount > 0
